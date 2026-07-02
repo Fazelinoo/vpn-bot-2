@@ -127,3 +127,38 @@ Traceback (most recent call last):
     raise ValueError(f"Unknown scheme for proxy URL {url!r}")
 ValueError: Unknown scheme for proxy URL URL('socks://127.0.0.1:10808/')
 2026-07-02 13:40:09 | WARNING  | aiogram.dispatcher | Received SIGINT signal
+2026-07-02 14:03:56 | INFO     | __main__ | در حال شروع polling...
+2026-07-02 14:03:56 | INFO     | __main__ | ربات @fazelinobot آماده است.
+2026-07-02 14:04:09 | INFO     | bot.handlers.user.start | کاربر جدید/بازگشتی: 991738877 (@parsina_f)
+2026-07-02 14:04:28 | INFO     | bot.services.xui_service | اتصال به پنل 3x-ui برقرار شد.
+2026-07-02 14:04:28 | INFO     | py3xui.async_api.async_api_base | Getting inbounds...
+2026-07-02 14:04:28 | ERROR    | bot.handlers.admin.payments | خطا در دریافت inbound: Unknown scheme for proxy URL URL('socks://127.0.0.1:10808/')
+Traceback (most recent call last):
+  File "/home/linux/Downloads/vpn-bot-main/bot/handlers/admin/payments.py", line 51, in cb_admin_inbound
+    inbounds = await xui_service.get_inbounds()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/bot/services/xui_service.py", line 46, in get_inbounds
+    inbounds = await api.inbound.get_list()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api_inbound.py", line 66, in get_list
+    response = await self._get(url, headers)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api_base.py", line 467, in _get
+    return await self._request_with_retry(ApiFields.GET, url, headers, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api_base.py", line 262, in _request_with_retry
+    async with httpx.AsyncClient(
+               ~~~~~~~~~~~~~~~~~^
+        cookies=self.cookies, verify=verify, follow_redirects=True
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ) as client:
+    ^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/httpx/_client.py", line 1400, in __init__
+    proxy_map = self._get_proxy_map(proxy, allow_env_proxies)
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/httpx/_client.py", line 245, in _get_proxy_map
+    key: None if url is None else Proxy(url=url)
+                                  ~~~~~^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/httpx/_config.py", line 214, in __init__
+    raise ValueError(f"Unknown scheme for proxy URL {url!r}")
+ValueError: Unknown scheme for proxy URL URL('socks://127.0.0.1:10808/')
+2026-07-02 14:04:32 | WARNING  | aiogram.dispatcher | Received SIGINT signal

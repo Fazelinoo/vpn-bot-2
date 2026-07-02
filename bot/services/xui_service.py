@@ -102,7 +102,7 @@ class XUIService:
             limit_ip=2,
             total_gb=int(total_gb * GB),
             expiry_time=self._expiry_ms(days),
-            tg_id=str(user_id),
+            tg_id=user_id,
             sub_id=sub_id,
         )
 

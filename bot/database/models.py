@@ -66,10 +66,6 @@ class Order(Base):
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"))
     gb_amount: Mapped[float] = mapped_column(Float)
     price: Mapped[int] = mapped_column(Integer, default=0)
-    client_email: Mapped[str] = mapped_column(String(128), unique=True)
-    client_uuid: Mapped[str] = mapped_column(String(64))
-    sub_id: Mapped[str] = mapped_column(String(32))
-    inbound_id: Mapped[int] = mapped_column(Integer)
     status: Mapped[OrderStatus] = mapped_column(
         Enum(OrderStatus), default=OrderStatus.ACTIVE
     )
@@ -83,6 +79,25 @@ class Order(Base):
 
     user: Mapped[User] = relationship(back_populates="orders")
     payment: Mapped[Payment | None] = relationship(back_populates="order")
+    clients: Mapped[list[OrderClient]] = relationship(back_populates="order", cascade="all, delete-orphan")
+
+
+class OrderClient(Base):
+    """کانفیگ‌های هر سفارش (برای هر inbound)."""
+
+    __tablename__ = "order_clients"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    order_id: Mapped[int] = mapped_column(Integer, ForeignKey("orders.id"))
+    inbound_id: Mapped[int] = mapped_column(Integer)
+    client_email: Mapped[str] = mapped_column(String(128))
+    client_uuid: Mapped[str] = mapped_column(String(64))
+    sub_id: Mapped[str] = mapped_column(String(32))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    order: Mapped[Order] = relationship(back_populates="clients")
 
 
 class Payment(Base):

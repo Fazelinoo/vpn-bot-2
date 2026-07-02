@@ -14,11 +14,12 @@ from bot.database.models import PaymentStatus
 from bot.database.repository import (
     SETTING_PRICE_PER_GB,
     SETTING_SALE_INBOUNDS,
+    add_order_client,
     approve_payment,
     create_order,
     disable_order,
-    get_int_setting,
     get_order,
+    get_order_clients,
     get_payment,
     get_pending_payments,
     get_sale_inbounds,
@@ -145,39 +146,53 @@ async def cb_approve_payment(
             await callback.answer("هیچ inboundی برای فروش انتخاب نشده!", show_alert=True)
             return
         
-        inbound_id = random.choice(sale_inbounds)
-        client_data = await xui_service.create_client(
-            user_id=payment.user_id,
-            inbound_id=inbound_id,
-            total_gb=payment.gb_amount,
-            days=settings.default_plan_days,
-        )
-
+        # ایجاد سفارش بدون کانفیگ
         order = await create_order(
             session,
             user_id=payment.user_id,
             gb_amount=payment.gb_amount,
             price=payment.amount,
-            client_email=client_data["email"],
-            client_uuid=client_data["uuid"],
-            sub_id=client_data["sub_id"],
-            inbound_id=inbound_id,
-            expires_at=client_data["expires_at"],
+            expires_at=None,
         )
+        
+        # ساخت کانفیگ برای هر inbound انتخاب شده
+        clients_data = []
+        for inbound_id in sale_inbounds:
+            client_data = await xui_service.create_client(
+                user_id=payment.user_id,
+                inbound_id=inbound_id,
+                total_gb=payment.gb_amount,
+                days=settings.default_plan_days,
+            )
+            await add_order_client(
+                session,
+                order_id=order.id,
+                inbound_id=inbound_id,
+                client_email=client_data["email"],
+                client_uuid=client_data["uuid"],
+                sub_id=client_data["sub_id"],
+            )
+            clients_data.append(client_data)
+        
         await approve_payment(session, payment, order.id)
 
-        sub_url = xui_service.build_subscription_url(client_data["sub_id"])
-        qr = generate_qr_bytes(sub_url)
-
+        # ساخت پیام با تمام لینک‌های subscription
         user_text = (
-            "✅ <b>پرداخت تایید شد!</b>\n\n"
+            f"✅ <b>پرداخت تایید شد!</b>\n\n"
             f"📦 پلن: <b>{payment.gb_amount} GB</b>\n"
-            f"⏰ مدت: <b>{settings.default_plan_days} روز</b>\n\n"
-            f"🔗 <b>Subscription:</b>\n<code>{sub_url}</code>"
+            f"⏰ مدت: <b>{settings.default_plan_days} روز</b>\n"
+            f"� تعداد کانفیگ: <b>{len(clients_data)}</b>\n\n"
         )
+        
+        for i, client_data in enumerate(clients_data, 1):
+            sub_url = xui_service.build_subscription_url(client_data["sub_id"])
+            user_text += f"🔗 <b>کانفیگ {i}:</b>\n<code>{sub_url}</code>\n\n"
+        
+        # ارسال QR اولین کانفیگ
+        first_qr = generate_qr_bytes(xui_service.build_subscription_url(clients_data[0]["sub_id"]))
         await bot.send_photo(
             payment.user_id,
-            photo=BufferedInputFile(qr.read(), filename="qr.png"),
+            photo=BufferedInputFile(first_qr.read(), filename="qr.png"),
             caption=user_text,
             reply_markup=order_detail_kb(order.id),
             parse_mode="HTML",
@@ -242,10 +257,14 @@ async def cb_disable_order(callback: CallbackQuery, session: AsyncSession) -> No
         return
 
     try:
-        await xui_service.disable_client(order.inbound_id, order.client_uuid)
+        # غیرفعال کردن تمام کانفیگ‌های این سفارش
+        clients = await get_order_clients(session, order_id)
+        for client in clients:
+            await xui_service.disable_client(client.inbound_id, client.client_uuid)
+        
         await disable_order(session, order)
-        await callback.answer(f"اکانت #{order_id} متوقف شد ✅", show_alert=True)
-        logger.info("اکانت #%s متوقف شد", order_id)
+        await callback.answer(f"اکانت #{order_id} با {len(clients)} کانفیگ متوقف شد ✅", show_alert=True)
+        logger.info("اکانت #%s با %d کانفیگ متوقف شد", order_id, len(clients))
     except Exception as e:
         logger.exception("خطا در متوقف کردن: %s", e)
         await callback.answer("خطا!", show_alert=True)

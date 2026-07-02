@@ -9,7 +9,7 @@ from aiogram.types import BufferedInputFile, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.database.models import OrderStatus
-from bot.database.repository import get_order, get_user_orders
+from bot.database.repository import get_order, get_order_clients, get_user_orders
 from bot.keyboards.user_kb import account_orders_kb, back_to_menu_kb, order_detail_kb
 from bot.services.qr_service import generate_qr_bytes
 from bot.services.xui_service import xui_service
@@ -51,8 +51,14 @@ async def cb_order_detail(callback: CallbackQuery, session: AsyncSession) -> Non
         await callback.answer("اکانت یافت نشد.", show_alert=True)
         return
 
-    stats = await xui_service.get_client_stats(order.client_email)
-    text = await _format_order_text(order, stats)
+    # دریافت اولین کانفیگ برای نمایش آمار
+    clients = await get_order_clients(session, order_id)
+    if not clients:
+        await callback.answer("کانفیگی یافت نشد.", show_alert=True)
+        return
+    
+    stats = await xui_service.get_client_stats(clients[0].client_email)
+    text = await _format_order_text(order, stats, len(clients))
 
     await callback.message.edit_text(
         text,
@@ -72,24 +78,31 @@ async def cb_get_sub(callback: CallbackQuery, session: AsyncSession) -> None:
         await callback.answer("اکانت یافت نشد.", show_alert=True)
         return
 
-    sub_url = xui_service.build_subscription_url(order.sub_id)
-    qr = generate_qr_bytes(sub_url)
+    # دریافت تمام کانفیگ‌های این سفارش
+    clients = await get_order_clients(session, order_id)
+    if not clients:
+        await callback.answer("کانفیگی یافت نشد.", show_alert=True)
+        return
 
-    text = (
-        f"🔗 <b>Subscription — اکانت #{order.id}</b>\n\n"
-        f"<code>{sub_url}</code>\n\n"
-        "QR Code را اسکن کنید یا لینک را import کنید."
-    )
+    # ساخت پیام با تمام لینک‌های subscription
+    text = f"🔗 <b>Subscription — اکانت #{order.id}</b>\n\n"
+    for i, client in enumerate(clients, 1):
+        sub_url = xui_service.build_subscription_url(client.sub_id)
+        text += f"📡 <b>کانفیگ {i}:</b>\n<code>{sub_url}</code>\n\n"
+    
+    text += "QR Code را اسکن کنید یا لینک را import کنید."
 
+    # ارسال QR اولین کانفیگ
+    first_qr = generate_qr_bytes(xui_service.build_subscription_url(clients[0].sub_id))
     await callback.message.answer_photo(
-        photo=BufferedInputFile(qr.read(), filename="qr.png"),
+        photo=BufferedInputFile(first_qr.read(), filename="qr.png"),
         caption=text,
         parse_mode="HTML",
     )
     await callback.answer("✅ ارسال شد")
 
 
-async def _format_order_text(order, stats: dict | None) -> str:
+async def _format_order_text(order, stats: dict | None, clients_count: int = 1) -> str:
     """فرمت متن جزئیات اکانت."""
     status_map = {
         OrderStatus.ACTIVE: "🟢 فعال",
@@ -103,6 +116,7 @@ async def _format_order_text(order, stats: dict | None) -> str:
     lines = [
         f"📱 <b>اکانت #{order.id}{trial}</b>\n",
         f"📦 پلن: <b>{order.gb_amount} GB</b>",
+        f"📡 تعداد کانفیگ: <b>{clients_count}</b>",
         f"📡 وضعیت: {status}",
     ]
 
