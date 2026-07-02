@@ -62,10 +62,10 @@ class XUIService:
         return secrets.token_hex(8)
 
     @staticmethod
-    def _generate_email(user_id: int, prefix: str = "user") -> str:
+    def _generate_email(user_id: int, inbound_id: int, prefix: str = "user") -> str:
         """ایمیل یکتا برای کلاینت."""
         ts = int(datetime.now(timezone.utc).timestamp())
-        return f"{prefix}_{user_id}_{ts}@fazelino.lol"
+        return f"{prefix}_{user_id}_{inbound_id}_{ts}@fazelino.lol"
 
     @staticmethod
     def _expiry_ms(days: int) -> int:
@@ -93,7 +93,7 @@ class XUIService:
         api = await self._get_api()
         client_uuid = str(uuid.uuid4())
         sub_id = self._generate_sub_id()
-        email = self._generate_email(user_id, prefix="trial" if is_trial else "user")
+        email = self._generate_email(user_id, inbound_id, prefix="trial" if is_trial else "user")
 
         new_client = Client(
             id=client_uuid,
