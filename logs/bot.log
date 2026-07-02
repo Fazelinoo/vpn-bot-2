@@ -1,0 +1,129 @@
+2026-07-02 11:20:28 | INFO     | __main__ | در حال شروع polling...
+2026-07-02 11:20:29 | INFO     | __main__ | ربات @fazelinobot آماده است.
+2026-07-02 11:20:49 | INFO     | bot.handlers.user.start | کاربر جدید/بازگشتی: 991738877 (@parsina_f)
+2026-07-02 11:21:09 | ERROR    | bot.handlers.admin.payments | خطا در دریافت inbound: No need to login if using the token already.
+Traceback (most recent call last):
+  File "/home/linux/Downloads/vpn-bot-main/bot/handlers/admin/payments.py", line 48, in cb_admin_inbound
+    inbounds = await xui_service.get_inbounds()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/bot/services/xui_service.py", line 40, in get_inbounds
+    api = await self._get_api()
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/bot/services/xui_service.py", line 34, in _get_api
+    await self._api.login()
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api.py", line 271, in login
+    await self.client.login(two_factor_code)
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api_base.py", line 338, in login
+    raise RuntimeError("No need to login if using the token already.")
+RuntimeError: No need to login if using the token already.
+2026-07-02 11:21:17 | INFO     | py3xui.async_api.async_api_base | Getting inbounds...
+2026-07-02 11:21:17 | ERROR    | bot.handlers.admin.payments | خطا در دریافت inbound: Unknown scheme for proxy URL URL('socks://127.0.0.1:10808/')
+Traceback (most recent call last):
+  File "/home/linux/Downloads/vpn-bot-main/bot/handlers/admin/payments.py", line 48, in cb_admin_inbound
+    inbounds = await xui_service.get_inbounds()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/bot/services/xui_service.py", line 41, in get_inbounds
+    inbounds = await api.inbound.get_list()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api_inbound.py", line 66, in get_list
+    response = await self._get(url, headers)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api_base.py", line 467, in _get
+    return await self._request_with_retry(ApiFields.GET, url, headers, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api_base.py", line 262, in _request_with_retry
+    async with httpx.AsyncClient(
+               ~~~~~~~~~~~~~~~~~^
+        cookies=self.cookies, verify=verify, follow_redirects=True
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ) as client:
+    ^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/httpx/_client.py", line 1400, in __init__
+    proxy_map = self._get_proxy_map(proxy, allow_env_proxies)
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/httpx/_client.py", line 245, in _get_proxy_map
+    key: None if url is None else Proxy(url=url)
+                                  ~~~~~^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/httpx/_config.py", line 214, in __init__
+    raise ValueError(f"Unknown scheme for proxy URL {url!r}")
+ValueError: Unknown scheme for proxy URL URL('socks://127.0.0.1:10808/')
+2026-07-02 11:21:27 | WARNING  | aiogram.dispatcher | Received SIGINT signal
+2026-07-02 13:33:30 | INFO     | __main__ | در حال شروع polling...
+2026-07-02 13:33:31 | INFO     | __main__ | ربات @fazelinobot آماده است.
+2026-07-02 13:33:55 | INFO     | bot.handlers.user.start | کاربر جدید/بازگشتی: 991738877 (@parsina_f)
+2026-07-02 13:34:06 | ERROR    | bot.handlers.admin.payments | خطا در دریافت inbound: No need to login if using the token already.
+Traceback (most recent call last):
+  File "/home/linux/Downloads/vpn-bot-main/bot/handlers/admin/payments.py", line 50, in cb_admin_inbound
+    inbounds = await xui_service.get_inbounds()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/bot/services/xui_service.py", line 40, in get_inbounds
+    api = await self._get_api()
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/bot/services/xui_service.py", line 34, in _get_api
+    await self._api.login()
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api.py", line 271, in login
+    await self.client.login(two_factor_code)
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api_base.py", line 338, in login
+    raise RuntimeError("No need to login if using the token already.")
+RuntimeError: No need to login if using the token already.
+2026-07-02 13:34:25 | WARNING  | aiogram.dispatcher | Received SIGINT signal
+2026-07-02 13:38:04 | INFO     | __main__ | در حال شروع polling...
+2026-07-02 13:38:05 | INFO     | __main__ | ربات @fazelinobot آماده است.
+2026-07-02 13:38:14 | ERROR    | bot.handlers.admin.payments | خطا در دریافت inbound: No need to login if using the token already.
+Traceback (most recent call last):
+  File "/home/linux/Downloads/vpn-bot-main/bot/handlers/admin/payments.py", line 50, in cb_admin_inbound
+    inbounds = await xui_service.get_inbounds()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/bot/services/xui_service.py", line 40, in get_inbounds
+    api = await self._get_api()
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/bot/services/xui_service.py", line 34, in _get_api
+    await self._api.login()
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api.py", line 271, in login
+    await self.client.login(two_factor_code)
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api_base.py", line 338, in login
+    raise RuntimeError("No need to login if using the token already.")
+RuntimeError: No need to login if using the token already.
+2026-07-02 13:38:28 | WARNING  | aiogram.dispatcher | Received SIGINT signal
+2026-07-02 13:39:11 | INFO     | __main__ | در حال شروع polling...
+2026-07-02 13:39:11 | INFO     | __main__ | ربات @fazelinobot آماده است.
+2026-07-02 13:39:13 | ERROR    | bot.handlers.admin.payments | خطا در دریافت inbound: 'XUIService' object has no attribute 'get_inbounds'
+Traceback (most recent call last):
+  File "/home/linux/Downloads/vpn-bot-main/bot/handlers/admin/payments.py", line 50, in cb_admin_inbound
+    inbounds = await xui_service.get_inbounds()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'XUIService' object has no attribute 'get_inbounds'
+2026-07-02 13:39:50 | WARNING  | aiogram.dispatcher | Received SIGINT signal
+2026-07-02 13:39:59 | INFO     | __main__ | در حال شروع polling...
+2026-07-02 13:40:00 | INFO     | __main__ | ربات @fazelinobot آماده است.
+2026-07-02 13:40:02 | INFO     | bot.services.xui_service | اتصال به پنل 3x-ui برقرار شد.
+2026-07-02 13:40:02 | INFO     | py3xui.async_api.async_api_base | Getting inbounds...
+2026-07-02 13:40:02 | ERROR    | bot.handlers.admin.payments | خطا در دریافت inbound: Unknown scheme for proxy URL URL('socks://127.0.0.1:10808/')
+Traceback (most recent call last):
+  File "/home/linux/Downloads/vpn-bot-main/bot/handlers/admin/payments.py", line 50, in cb_admin_inbound
+    inbounds = await xui_service.get_inbounds()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/bot/services/xui_service.py", line 46, in get_inbounds
+    inbounds = await api.inbound.get_list()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api_inbound.py", line 66, in get_list
+    response = await self._get(url, headers)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api_base.py", line 467, in _get
+    return await self._request_with_retry(ApiFields.GET, url, headers, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/py3xui/async_api/async_api_base.py", line 262, in _request_with_retry
+    async with httpx.AsyncClient(
+               ~~~~~~~~~~~~~~~~~^
+        cookies=self.cookies, verify=verify, follow_redirects=True
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ) as client:
+    ^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/httpx/_client.py", line 1400, in __init__
+    proxy_map = self._get_proxy_map(proxy, allow_env_proxies)
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/httpx/_client.py", line 245, in _get_proxy_map
+    key: None if url is None else Proxy(url=url)
+                                  ~~~~~^^^^^^^^^
+  File "/home/linux/Downloads/vpn-bot-main/venv/lib/python3.13/site-packages/httpx/_config.py", line 214, in __init__
+    raise ValueError(f"Unknown scheme for proxy URL {url!r}")
+ValueError: Unknown scheme for proxy URL URL('socks://127.0.0.1:10808/')
+2026-07-02 13:40:09 | WARNING  | aiogram.dispatcher | Received SIGINT signal
