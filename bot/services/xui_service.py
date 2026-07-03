@@ -62,10 +62,10 @@ class XUIService:
         return secrets.token_hex(8)
 
     @staticmethod
-    def _generate_email(user_id: int, inbound_id: int, prefix: str = "user") -> str:
+    def _generate_email(user_id: int, prefix: str = "user") -> str:
         """ایمیل یکتا برای کلاینت."""
         ts = int(datetime.now(timezone.utc).timestamp())
-        return f"{prefix}_{user_id}_{inbound_id}_{ts}@fazelino.lol"
+        return f"{prefix}_{user_id}_{ts}@fazelino.lol"
 
     @staticmethod
     def _expiry_ms(days: int) -> int:
@@ -79,13 +79,13 @@ class XUIService:
         self,
         *,
         user_id: int,
-        inbound_id: int,
+        inbound_ids: list[int],
         total_gb: float,
         days: int,
         is_trial: bool = False,
     ) -> dict:
         """
-        ساخت کلاینت جدید در پنل.
+        ساخت کلاینت جدید در پنل روی چند inbound.
 
         Returns:
             dict با کلیدهای email, uuid, sub_id, expires_at
@@ -93,7 +93,7 @@ class XUIService:
         api = await self._get_api()
         client_uuid = str(uuid.uuid4())
         sub_id = self._generate_sub_id()
-        email = self._generate_email(user_id, inbound_id, prefix="trial" if is_trial else "user")
+        email = self._generate_email(user_id, prefix="trial" if is_trial else "user")
 
         new_client = Client(
             id=client_uuid,
@@ -106,11 +106,14 @@ class XUIService:
             sub_id=sub_id,
         )
 
-        await api.client.add(inbound_id, [new_client])
+        # اضافه کردن کلاینت به همه inboundها
+        for inbound_id in inbound_ids:
+            await api.client.add(inbound_id, [new_client])
+        
         logger.info(
-            "کلاینت ساخته شد: email=%s inbound=%s gb=%s days=%s",
+            "کلاینت ساخته شد روی %d inbound: email=%s gb=%s days=%s",
+            len(inbound_ids),
             email,
-            inbound_id,
             total_gb,
             days,
         )

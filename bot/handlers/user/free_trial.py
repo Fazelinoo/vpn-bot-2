@@ -12,7 +12,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from bot.config import settings
 from bot.database.repository import (
     SETTING_SALE_INBOUNDS,
-    add_order_client,
     can_use_free_trial,
     create_order,
     get_sale_inbounds,
@@ -48,59 +47,45 @@ async def cb_free_trial(callback: CallbackQuery, session: AsyncSession, bot: Bot
             )
             return
         
-        # ایجاد سفارش بدون کانفیگ
+        # ساخت کلاینت روی همه inboundها
+        client_data = await xui_service.create_client(
+            user_id=user_id,
+            inbound_ids=sale_inbounds,
+            total_gb=settings.free_trial_gb,
+            days=settings.free_trial_days,
+            is_trial=True,
+        )
+        
         order = await create_order(
             session,
             user_id=user_id,
             gb_amount=settings.free_trial_gb,
             price=0,
+            client_email=client_data["email"],
+            client_uuid=client_data["uuid"],
+            sub_id=client_data["sub_id"],
+            inbound_ids=sale_inbounds,
             is_free_trial=True,
-            expires_at=None,
+            expires_at=client_data["expires_at"],
         )
-        
-        # ساخت کانفیگ برای هر inbound انتخاب شده
-        clients_data = []
-        for inbound_id in sale_inbounds:
-            client_data = await xui_service.create_client(
-                user_id=user_id,
-                inbound_id=inbound_id,
-                total_gb=settings.free_trial_gb,
-                days=settings.free_trial_days,
-                is_trial=True,
-            )
-            await add_order_client(
-                session,
-                order_id=order.id,
-                inbound_id=inbound_id,
-                client_email=client_data["email"],
-                client_uuid=client_data["uuid"],
-                sub_id=client_data["sub_id"],
-            )
-            clients_data.append(client_data)
-        
         await record_free_test(session, user_id, order.id)
 
-        # ساخت پیام با تمام لینک‌های subscription
+        sub_url = xui_service.build_subscription_url(client_data["sub_id"])
+        qr = generate_qr_bytes(sub_url)
+
         text = (
             "🎁 <b>تست رایگان فعال شد!</b>\n\n"
             f"📦 حجم: <b>{settings.free_trial_gb} GB</b>\n"
             f"⏰ مدت: <b>{settings.free_trial_days} روز</b>\n"
-            f"� تعداد کانفیگ: <b>{len(clients_data)}</b>\n\n"
+            f"📡 تعداد inbound: <b>{len(sale_inbounds)}</b>\n\n"
+            f"🔗 <b>Subscription:</b>\n<code>{sub_url}</code>\n\n"
+            "QR Code را اسکن کنید یا لینک را کپی کنید."
         )
-        
-        for i, client_data in enumerate(clients_data, 1):
-            sub_url = xui_service.build_subscription_url(client_data["sub_id"])
-            text += f"🔗 <b>کانفیگ {i}:</b>\n<code>{sub_url}</code>\n\n"
-        
-        text += "QR Code را اسکن کنید یا لینک را کپی کنید."
 
         await callback.message.edit_text("✅ اکانت تست آماده شد!")
-        
-        # ارسال QR اولین کانفیگ
-        first_qr = generate_qr_bytes(xui_service.build_subscription_url(clients_data[0]["sub_id"]))
         await bot.send_photo(
             callback.from_user.id,
-            photo=BufferedInputFile(first_qr.read(), filename="qr.png"),
+            photo=BufferedInputFile(qr.read(), filename="qr.png"),
             caption=text,
             reply_markup=order_detail_kb(order.id),
             parse_mode="HTML",

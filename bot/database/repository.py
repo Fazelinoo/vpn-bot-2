@@ -11,7 +11,6 @@ from bot.config import settings
 from bot.database.models import (
     FreeTest,
     Order,
-    OrderClient,
     OrderStatus,
     Payment,
     PaymentStatus,
@@ -166,6 +165,10 @@ async def create_order(
     user_id: int,
     gb_amount: float,
     price: int,
+    client_email: str,
+    client_uuid: str,
+    sub_id: str,
+    inbound_ids: list[int],
     is_free_trial: bool = False,
     expires_at: datetime | None = None,
 ) -> Order:
@@ -174,6 +177,10 @@ async def create_order(
         user_id=user_id,
         gb_amount=gb_amount,
         price=price,
+        client_email=client_email,
+        client_uuid=client_uuid,
+        sub_id=sub_id,
+        inbound_ids=",".join(map(str, inbound_ids)),
         is_free_trial=is_free_trial,
         expires_at=expires_at,
         status=OrderStatus.ACTIVE,
@@ -184,34 +191,11 @@ async def create_order(
     return order
 
 
-async def add_order_client(
-    session: AsyncSession,
-    *,
-    order_id: int,
-    inbound_id: int,
-    client_email: str,
-    client_uuid: str,
-    sub_id: str,
-) -> OrderClient:
-    """افزودن کانفیگ به سفارش."""
-    client = OrderClient(
-        order_id=order_id,
-        inbound_id=inbound_id,
-        client_email=client_email,
-        client_uuid=client_uuid,
-        sub_id=sub_id,
-    )
-    session.add(client)
-    await session.commit()
-    await session.refresh(client)
-    return client
-
-
-async def get_order_clients(session: AsyncSession, order_id: int) -> list[OrderClient]:
-    """لیست کانفیگ‌های یک سفارش."""
-    stmt = select(OrderClient).where(OrderClient.order_id == order_id)
-    result = await session.execute(stmt)
-    return list(result.scalars().all())
+def parse_inbound_ids(order: Order) -> list[int]:
+    """استخراج لیست inbound IDs از سفارش."""
+    if not order.inbound_ids:
+        return []
+    return [int(x) for x in order.inbound_ids.split(",") if x.strip()]
 
 
 async def create_payment(
