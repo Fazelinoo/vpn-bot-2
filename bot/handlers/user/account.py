@@ -24,20 +24,37 @@ async def cb_my_account(callback: CallbackQuery, session: AsyncSession) -> None:
     """لیست اکانت‌های کاربر."""
     orders = await get_user_orders(session, callback.from_user.id)
     if not orders:
-        await callback.message.edit_text(
+        text = (
             "📭 شما هنوز اکانتی ندارید.\n"
-            "از «تست رایگان» یا «خرید پلن» استفاده کنید.",
-            reply_markup=back_to_menu_kb(),
+            "از «تست رایگان» یا «خرید پلن» استفاده کنید."
         )
+        try:
+            await callback.message.edit_text(
+                text,
+                reply_markup=back_to_menu_kb(),
+            )
+        except Exception:
+            await callback.message.edit_caption(
+                caption=text,
+                reply_markup=back_to_menu_kb(),
+            )
         await callback.answer()
         return
 
     order_ids = [o.id for o in orders]
-    await callback.message.edit_text(
-        "📊 <b>اکانت‌های شما</b>\n\nیک اکانت را انتخاب کنید:",
-        reply_markup=account_orders_kb(order_ids),
-        parse_mode="HTML",
-    )
+    text = "📊 <b>اکانت‌های شما</b>\n\nیک اکانت را انتخاب کنید:"
+    try:
+        await callback.message.edit_text(
+            text,
+            reply_markup=account_orders_kb(order_ids),
+            parse_mode="HTML",
+        )
+    except Exception:
+        await callback.message.edit_caption(
+            caption=text,
+            reply_markup=account_orders_kb(order_ids),
+            parse_mode="HTML",
+        )
     await callback.answer()
 
 
