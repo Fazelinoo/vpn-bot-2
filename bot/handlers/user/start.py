@@ -77,11 +77,18 @@ async def cb_main_menu(callback: CallbackQuery, session: AsyncSession) -> None:
     """بازگشت به منوی اصلی."""
     user = callback.from_user
     admin = is_admin(user.id, settings.admin_ids)
-    await callback.message.edit_text(
-        WELCOME_TEXT,
-        reply_markup=main_menu_kb(is_admin=admin),
-        parse_mode="HTML",
-    )
+    try:
+        await callback.message.edit_text(
+            WELCOME_TEXT,
+            reply_markup=main_menu_kb(is_admin=admin),
+            parse_mode="HTML",
+        )
+    except Exception:
+        await callback.message.edit_caption(
+            caption=WELCOME_TEXT,
+            reply_markup=main_menu_kb(is_admin=admin),
+            parse_mode="HTML",
+        )
     await callback.answer()
 
 
